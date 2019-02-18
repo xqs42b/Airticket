@@ -141,6 +141,10 @@ class FlightsCtrip(object):
             return None
         return products_data 
 
+    def get_select_flight_data(self, original_data):
+        ''' 筛选飞机票数据 '''
+        flight_data = []
+
     def make_headers(self):
         ''' 制作请求头 '''
         headers = {
