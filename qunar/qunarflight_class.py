@@ -54,21 +54,68 @@ class QunarFlight(object):
     def get_flight_data(self):
         ''' 获取飞机票数据 '''
         self.click_direct_flight_checkbox()
-        '''
-        flight_company_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div/div/div[1]/span'
-        flight_number_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div/div/div[2]/span[1]'
-        flight_type_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div/div/div[2]/span[2]'
-        set_out_date_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div[2]/div[@class="sep-lf"]/h2'
-        set_out_airport_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div[2]/div[@class="sep-lf"]/p/span[1]'
-        set_out_railway_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div[2]/div[@class="sep-lf"]/p/span[2]'
-        time_cost_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div[2]/div[@class="sep-ct"]'
-        arrival_date_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div[2]/div[@class="sep-rt"]/h2'
-        arrival_airport_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div[2]/div[@class="sep-rt"]/p/span[1]'
-        arrival_railway_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div[2]/div[@class="sep-rt"]/p/span[2]'
-        discount_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div[2]/div/span'
-        '''
+        flight_company_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/\
+            div/div/div/div/div/div/div[1]/span'
+        flight_company_list = self.get_text_ele_list(flight_company_xpath)
+        flight_number_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/\
+            div/div/div/div/div/div/div[2]/span[1]'
+        flight_number_list = self.get_text_ele_list(flight_number_xpath)
+        flight_type_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/\
+            div/div/div/div/div/div[2]/span[2]'
+        flight_type_list = self.get_text_ele_list(flight_type_xpath)
+        set_out_date_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/\
+            div/div/div/div/div[2]/div[@class="sep-lf"]/h2'
+        set_out_date_list = self.get_text_ele_list(set_out_date_xpath)
+        set_out_airport_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/\
+            div/div/div/div/div[2]/div[@class="sep-lf"]/p/span[1]'
+        set_out_airport_list = self.get_text_ele_list(set_out_airport_xpath)
+        set_out_railway_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/\
+            div/div/div/div/div[2]/div[@class="sep-lf"]/p/span[2]'
+        set_out_railway_list = self.get_text_ele_list(set_out_railway_xpath)
+        time_cost_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/\
+            div/div/div/div[2]/div[@class="sep-ct"]'
+        time_cost_list = self.get_text_ele_list(time_cost_xpath)
+        arrival_date_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/\
+            div/div/div/div/div[2]/div[@class="sep-rt"]/h2'
+        arrival_date_list = self.get_text_ele_list(arrival_date_xpath)
+        arrival_airport_xpath = '//div[@class="content"]/div[3]/div[4]/div/\
+            div/div/div/div/div/div[2]/div[@class="sep-rt"]/p/span[1]'
+        arrival_airport_list = self.get_text_ele_list(arrival_airport_xpath)
+        arrival_railway_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/\
+            div/div/div/div/div[2]/div[@class="sep-rt"]/p/span[2]'
+        arrival_railway_list = self.get_text_ele_list(arrival_railway_xpath)
+        discount_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/\
+            div/div[2]/div/span'
+        discount_list = self.get_text_ele_list(discount_xpath)
         price_list = self.get_price_list()
-        print price_list
+        if (not price_list) and (not flight_company_list) and \
+                (not flight_number_list) and (not flight_type_list) and \
+                (not set_out_date_list) and (not set_out_airport_list) and \
+                (not set_out_railway_list) and (not time_cost_list) and \
+                (not arrival_date_list) and (not arrival_airport_list) and \
+                (not arrival_railway_list) and (not discount_list):
+            return None
+        flight_datas = []
+        data_num = len(price_list)
+        try:
+            for d in range(data_num):
+                flight_data = {}
+                flight_data['fligth_company'] = flight_company_list[d].text
+                flight_data['flight_number'] = flight_number_list[d].text
+                flight_data['flight_type'] = flight_type_list[d].text
+                flight_data['set_out_date'] = set_out_date_list[d].text
+                flight_data['set_out_airport'] = set_out_airport_list[d].text
+                flight_data['set_out_railway'] = set_out_railway_list[d].text
+                flight_data['time_cost'] = time_cost_list[d].text
+                flight_data['arrival_date'] = arrival_date_list[d].text
+                flight_data['arrival_airport'] = arrival_airport_list[d].text
+                flight_data['arrival_railway'] = arrival_railway_list[d].text
+                flight_data['discount'] = discount_list[d].text
+                flight_data['price'] = price_list[d]
+                flight_datas.append(flight_data)
+        except:
+            return None
+        return flight_datas
 
     def get_price_list(self):
         ''' 获取所有机票价格 '''
@@ -299,4 +346,5 @@ if __name__ == '__main__':
     outset_date = time.strftime(
         "%Y-%m-%d",
         time.localtime(time.time() + (3600 * 24 * 7)))
-    qf.find_event(cityName1, cityName2, date1=outset_date)
+    datas = qf.find_event(cityName1, cityName2, date1=outset_date)
+    print json.dumps(datas) 
