@@ -8,7 +8,6 @@ import re
 from selenium import webdriver
 # from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
-# from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
 import sys
@@ -50,12 +49,12 @@ class QunarFlight(object):
         ''' 入口 '''
         if not self.operate_city_date(cityName1, cityName2, date1, date2):
             return None
-        self.get_flight_data()
+        return self.get_flight_data()
 
     def get_flight_data(self):
         ''' 获取飞机票数据 '''
         self.click_direct_flight_checkbox()
-
+        '''
         flight_company_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div/div/div[1]/span'
         flight_number_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div/div/div[2]/span[1]'
         flight_type_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div/div/div[2]/span[2]'
@@ -67,13 +66,57 @@ class QunarFlight(object):
         arrival_airport_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div[2]/div[@class="sep-rt"]/p/span[1]'
         arrival_railway_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div[2]/div[@class="sep-rt"]/p/span[2]'
         discount_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div[2]/div/span'
-        price_html_i_xpath = '//div[@id="content"]/div/div[3]/div[4]/div/div/div/div/div[2]/p/span/span/span/em/b[1]'
-        em_html_xpath = '//div[@id="content"]/div/div[3]/div[4]/div/div/div/div/div[2]/p/span/span/span/em'
+        '''
+        price_list = self.get_price_list()
+        print price_list
 
-        em_html_ele_list = self.get_text_ele_list(em_html_xpath)
-        for em in em_html_ele_list:
-            print '====================================='
-            print em.text
+    def get_price_list(self):
+        ''' 获取所有机票价格 '''
+        price_list = list()
+        html_source = self.driver.page_source
+        em_pattern = r'<em class="rel"><b .*?</b></em>'
+        em_ele_list = re.findall(em_pattern, html_source)
+        if not em_ele_list:
+            return price_list
+        del em_ele_list[0]
+        for em_ele_str in em_ele_list:
+            # 获取宽度值
+            width_px_pattern = r'style="width:(\d*)?px;'
+            width_px_obj = re.search(width_px_pattern, em_ele_str)
+            if not width_px_obj:
+                return price_list
+            width_px = width_px_obj.group(1)
+            if not (width_px.isdigit()):
+                return price_list
+            # 获取i标签里面的值
+            i_ele_pattern = r'">(\d)</i>'
+            i_ele_list = re.findall(i_ele_pattern, em_ele_str)
+            if not i_ele_list:
+                return price_list
+            # 获取b标签里面的值
+            b_ele_pattern = r'">(\d)</b>'
+            b_ele_list = re.findall(b_ele_pattern, em_ele_str)
+            if not b_ele_list:
+                return price_list
+
+            b_px_pattern = r'left:-(\d*)?px">\d*</b>'
+            b_px_list = re.findall(b_px_pattern, em_ele_str)
+            if not b_ele_list:
+                return price_list
+            px_num = len(i_ele_list)
+            interval_val = (int(width_px)) / px_num
+
+            current_px = '0'
+            for n in range(px_num-1, -1, -1):
+                current_px = int(current_px)
+                current_px += interval_val
+                current_px = str(current_px)
+                if current_px not in b_px_list:
+                    continue
+                i_ele_list[n] = b_ele_list[b_px_list.index(current_px)]
+            flight_price = ''.join(i_ele_list)
+            price_list.append(flight_price)
+        return price_list
 
     def click_direct_flight_checkbox(self):
         ''' 勾选直飞框 '''
@@ -253,5 +296,7 @@ if __name__ == '__main__':
     qf = QunarFlight()
     cityName1 = u'成都'
     cityName2 = u'北京'
-    outset_date = time.strftime("%Y-%m-%d", time.localtime(time.time() + (3600 * 24 * 7)))
+    outset_date = time.strftime(
+        "%Y-%m-%d",
+        time.localtime(time.time() + (3600 * 24 * 7)))
     qf.find_event(cityName1, cityName2, date1=outset_date)
