@@ -3,6 +3,7 @@
 import requests
 import json
 import time
+import traceback
 
 import sys
 reload(sys)
@@ -137,13 +138,107 @@ class FlightsCtrip(object):
             return None
         try:
             products_data = json.loads(rp.text)
+            route_data = self.get_select_flight_data(products_data)
+            print json.dumps(route_data)
         except:
             return None
         return products_data 
 
     def get_select_flight_data(self, original_data):
         ''' 筛选飞机票数据 '''
-        flight_data = []
+
+        route_data = []
+        # routeType: 路线类型; Flight(飞机直达), FlightTrain(飞机转火车)
+        Flight = 'Flight'
+        FlightTrain = 'FlightTrain'
+        route_kw_data = 'data'
+        routeList = 'routeList'
+        routeType = 'routeType'
+        legs = 'legs'
+        legs_flight = 'flight'
+        flight_keyword_list = ['flightNumber', 'airlineName', 'craftTypeCode', 'craftTypeName',\
+            'craftTypeKindDisplayName', 'departureDate', 'arrivalDate', 'punctualityRate',\
+            'departureAirportInfo', 'arrivalAirportInfo']
+        departureAirportInfo = 'departureAirportInfo'
+        arrivalAirportInfo = 'arrivalAirportInfo'
+        cityName = 'cityName'
+        airportName = 'airportName'
+        terminal = 'terminal'
+        name = 'name'
+        departure_cityname = 'departureCityName'
+        departure_terminalname = 'departureTerminalName'
+        arrival_cityname = 'arrivalCityName'
+        arrival_terminalname = 'arrivalTerminalName'
+        cabins = 'cabins'
+        cabins_price = 'price'
+        cabins_rate = 'rate'
+        cabinClass = 'cabinClass'
+        '''
+        cabinClass: Y(经济舱)
+        cabinClass: C(公务舱)
+        cabinClass: F(头等舱)
+        '''
+        seatecount = 'seatCount'
+        childPolicy = 'childPolicy'
+        babyPolicy = 'babyPolicy'
+        additionalProductGroups = 'additionalProductGroups'
+        additional_product = 'products'
+
+        try:
+            routeList_data = original_data[route_kw_data][routeList]
+            print 'route_num:', len(routeList_data)
+            for route in routeList_data:
+                air_data = {}
+                flight = {} 
+                new_cabins_list = []
+                if route[routeType] == Flight:
+                    legs0_data = route[legs][0]
+                    air_data[routeType] = Flight
+                    legs_flight_data = legs0_data[legs_flight]
+                    for f_kw in flight_keyword_list:
+                        if f_kw == departureAirportInfo:
+                            departure_data = legs_flight_data[f_kw]
+                            flight[departure_cityname] = departure_data[airportName]
+                            flight[departure_terminalname] = departure_data[terminal][name]
+                            continue
+                        if f_kw == arrivalAirportInfo:
+                            arrival_data = legs_flight_data[f_kw]
+                            flight[arrival_cityname] = arrival_data[airportName]
+                            flight[arrival_terminalname] = arrival_data[terminal][name]
+                            continue
+                        flight[f_kw] = legs_flight_data[f_kw]
+
+                    cabins_list = legs0_data[cabins]
+                    for cabin in cabins_list:
+                        price_dict = {}
+                        price_dict[cabins_price] = cabin[cabins_price][cabins_price]
+                        price_dict[cabins_rate] = cabin[cabins_price][cabins_rate]
+                        price_dict[seatecount] = cabin[seatecount]
+                        price_dict[cabinClass] = cabin[cabinClass]
+                        childPolicy_data = cabin.get(childPolicy, '')
+                        babyPolicy_data = cabin.get(babyPolicy, '')
+                        if not childPolicy_data:
+                            price_dict[childPolicy + cabins_price] = childPolicy_data
+                        else:
+                            price_dict[childPolicy + cabins_price] = childPolicy_data[cabins_price]
+                        
+                        if not babyPolicy_data:
+                            price_dict[babyPolicy + cabins_price] = babyPolicy_data 
+                        else:
+                            price_dict[babyPolicy + cabins_price] = babyPolicy_data[cabins_price]
+
+                        new_cabins_list.append(price_dict)
+
+                    flight[cabins] = new_cabins_list
+                    air_data[legs_flight] = flight
+                if routeType == FlightTrain:
+                    air_data[routeType] = FlightTrain
+                    pass
+                route_data.append(air_data)
+            return route_data 
+        except:
+            traceback.print_exc()
+            return route_data 
 
     def make_headers(self):
         ''' 制作请求头 '''
@@ -175,4 +270,4 @@ if __name__ == '__main__':
     fc = FlightsCtrip()
     city1_name = u'广州'
     city2_name = u'成都'
-    print fc.get_fligth_product(city1_name, city2_name)
+    fc.get_fligth_product(city1_name, city2_name)
