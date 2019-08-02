@@ -24,9 +24,11 @@ class FlightCtrip(object):
                 return None
             try:
                 option = webdriver.ChromeOptions()
-                option.add_argument('--headless')
-                option.add_argument('User-Agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)\
-                    Chrome/75.0.3770.142 Safari/537.36"')
+                # 隐藏头信息
+                # option.add_argument('--headless')
+                # option.add_argument('User-Agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)\
+                #     Chrome/75.0.3770.142 Safari/537.36"')
+                # 关闭开发者模式
                 option.add_experimental_option('excludeSwitches', ['enable-automation'])
                 driver = webdriver.Chrome(chrome_options=option)
                 driver.set_window_size(1366, 768)
@@ -313,7 +315,7 @@ if __name__ == '__main__':
     # cur_province = 'shanghai'
     cur_province = 'guangdong'
     cur_to_city = u'北京'
-    date1 = '2019-08-01'
-    date2 = '2019-08-05'
+    date1 = '2019-08-06'
+    date2 = '2019-08-09'
     print(fc.main(cur_province, cur_to_city, date1, date2))
     fc.close()
