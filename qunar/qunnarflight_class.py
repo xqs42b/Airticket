@@ -55,6 +55,14 @@ class QunarFlight(object):
     def get_flight_data(self):
         """ 获取飞机票数据 """
         self.click_direct_flight_checkbox()
+        arrival_railway_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div[2]/\
+            div[@class="sep-rt"]/p/span[2]'
+        arrival_railway_list = ele_utils.get_elements_for_wait(
+            self.driver,
+            By.XPATH,
+            arrival_railway_xpath
+        )
+        # print('arrival_railway_list:', arrival_railway_list)
         flight_company_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div/div/div[1]/span'
         flight_company_list = self.get_text_ele_list(flight_company_xpath)
         flight_number_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div/div/div[2]/span[1]'
@@ -78,10 +86,6 @@ class QunarFlight(object):
         arrival_airport_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div[2]/\
             div[@class="sep-rt"]/p/span[1]'
         arrival_airport_list = self.get_text_ele_list(arrival_airport_xpath)
-        arrival_railway_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div/div/div[2]/\
-            div[@class="sep-rt"]/p/span[2]'
-        arrival_railway_list = self.get_text_ele_list(arrival_railway_xpath)
-        print('arrival_railway_list:', arrival_railway_list)
         discount_xpath = '//div[@class="content"]/div[3]/div[4]/div/div/div/div/div[2]/div/span'
         discount_list = self.get_text_ele_list(discount_xpath)
         price_list = self.get_price_list()
@@ -204,8 +208,7 @@ class QunarFlight(object):
         )
         if not checkbox_ele:
             return False
-        if not ele_utils.request_num(checkbox_ele):
-            return False
+        checkbox_ele.click()
         return True
 
     def operate_city_date(self, city_name1, city_name2, date1):
@@ -219,7 +222,6 @@ class QunarFlight(object):
             return False
 
         if self.is_date_frame:
-            print('日期弹框已经弹出来了！')
             if not self.click_date_btn():
                 return False
 
@@ -257,8 +259,7 @@ class QunarFlight(object):
         )
         if not close_btn_ele:
             return False
-        if not ele_utils.request_num(close_btn_ele):
-            return False
+        close_btn_ele.click()
         return True
 
     def click_flight_search_btn(self):
@@ -276,8 +277,7 @@ class QunarFlight(object):
             btn_xpath)
         if not btn_ele:
             return False
-        if not ele_utils.request_num(btn_ele):
-            return False
+        btn_ele.click()
         return True
 
     def send_city_name(self, city_name, city_xpath):
@@ -367,7 +367,7 @@ class QunarFlight(object):
             print('get_text_error:', error)
             return None
 
-    def get_text_ele_list(self, texts_xpath, timeout=3):
+    def get_text_ele_list(self, texts_xpath, timeout=10):
         """
         :param texts_xpath: 文本xpath
         :param timeout: 请求超时
