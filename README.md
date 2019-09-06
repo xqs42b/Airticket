@@ -1,6 +1,9 @@
 飞机票爬虫
 
 主要模块：selenium
+python2.7
+Ubuntu18.04
+记得安装"chromedriver" 
 
 注意：
 1. 去哪儿网只爬第一页的数据
