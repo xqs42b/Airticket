@@ -1,9 +1,10 @@
 飞机票爬虫
 
 主要模块：selenium
+开发环境：
 python2.7
 Ubuntu18.04
-记得安装"chromedriver" 
+记得安装"chromedriver" ，一定要对应你的chrome浏览器版本，不然会报错
 
 注意：
 1. 去哪儿网只爬第一页的数据
