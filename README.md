@@ -6,7 +6,7 @@
 2.开发环境：
    python2.7
    Ubuntu18.04
-   记得安装"chromedriver" ，一定要对应你的chrome浏览器版本，不然会报错
+   记得安装"chromedriver" ，一定要对应你的chrome浏览器版本，不然会报错；下载地址（http://npm.taobao.org/mirrors/chromedriver/）
 
 3.注意：
     (1). 去哪儿网只爬第一页的数据
